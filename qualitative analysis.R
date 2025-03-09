@@ -77,7 +77,7 @@ db %>%
   theme (legend.position = 'bottom') +
   labs (x=NULL,
         y=NULL,
-        title='Valores de Emendas Individuais Executados por Modalidade de Transferência\n',
+        #title='Valores de Emendas Individuais Executados por Modalidade de Transferência\n',
         fill='Tipo de\nTransferência',
         caption='Data de atualização: 06/07/2024. Fonte: Painel TransfereGov.')
 
@@ -87,7 +87,6 @@ ggsave ('results/dual_rp6.png', width=8, height = 6)
 
 db <- import (here ('data/quadro_pessoal_tcu.csv'))
 
-
 db %>%
   dplyr::select (ano, `total - corpo técnico`) %>%
   dplyr::rename ('nfunc' = `total - corpo técnico`) %>%
@@ -95,12 +94,12 @@ db %>%
   mutate (nfunc = ifelse (ano%in%2017:2018, NA, nfunc)) %>%
   ggplot (aes(x=reorder(as.character(ano), rev(2005:2022)), y=nfunc)) +
   geom_col (fill=mypal[2]) +
-  geom_text (aes (y=0, label=numviz(nfunc)),
-             hjust=0,
+  geom_text (aes (label=numviz(nfunc)),
+             hjust=1.1,
              size=3) +
   coord_flip() +
   theme_classic() +
-  labs (title='Quantidade de funcionários técnicos ocupados do TCU por ano\n',
+  labs (#title='Quantidade de funcionários técnicos ocupados do TCU por ano\n',
         x=NULL,
         y='Nº de analistas, técnicos ou auditores federais de controle externo',
         caption='Fonte: relatórios anuais de atividades do TCU.')
@@ -127,28 +126,28 @@ rpleg <- c('RP-6', 'RP-7', 'RP-8', 'RP-9')
 
 labels <- c('0bi', '5bi', '10bi', '15bi', '20bi', '25bi')
 
+glimpse (db)
+  
 db %>%
+  pivot_longer(dot_atual:pago) %>%
   drop_na () %>%
   filter (rp_simples %in% rpleg) %>%
-  ggplot (aes(x=as.character(year))) +
-  geom_linerange (aes(ymax=dot_atual, ymin=0, color=rp_simples),
-                  position = position_dodge2(width = 0.9, preserve = "single")) +
-  geom_point (aes(y=dot_atual, color=rp_simples), size=2,
-              position = position_dodge2(width = 0.9, preserve = "single")) +
-  geom_col (aes(y=pago, fill=rp_simples),
-            position = position_dodge2(width = 0.9, preserve = "single")) +
-  scale_fill_manual(values=mypal)+
-  scale_color_manual(values=mypal)+
-  #coord_flip() +
-  scale_y_continuous(labels=labels) +
+  mutate (ano=as.character(year))%>%
+  ggplot (aes(x=ano, y=value, group=interaction(rp_simples, name)))+
+  geom_line (aes(color=rp_simples))+
+  geom_point (aes(color=rp_simples, shape=name), size=3)+
+  scale_color_manual(values=c(mypal[1], mypal[3:5]))+
+  scale_shape_discrete(labels=c('Dotado', 'Pago'))+
+  scale_y_continuous(n.breaks = 6, labels=labels) +
   theme_classic() +
   theme (legend.position = 'bottom') +
-  labs (title='Valores de Emendas Parlamentares Dotados e Pagos por Ano e Resultado Primário\n',
-        caption='Data de extração: 09/08/2024. Valores corrigidos automaticamente pelo sistema. Fonte: SIOP.',
-        fill=NULL,
-        y=NULL,
-        x=NULL,
-        color=NULL)
+  labs (#title='Valores de Emendas Parlamentares Dotados e Pagos por Ano e Resultado Primário\n',
+    caption='Data de extração: 09/08/2024. Valores corrigidos automaticamente pelo sistema. Fonte: SIOP.',
+    fill=NULL,
+    y=NULL,
+    x=NULL,
+    shape=NULL,
+    color=NULL)
 
 ggsave ('results/rps_dot_pagos.png', width=8, height = 5)
 
@@ -198,7 +197,7 @@ db %>%
   labs (x=NULL,
         y=NULL,
         fill='Status das Solicitações',
-        title='Quantidade e Percentual de Pedidos por Tipo de Usuário e Status',
+        #title='Quantidade e Percentual de Pedidos por Tipo de Usuário e Status',
         caption = 'Fonte: SINDORC. Data de extração: 07/01/2024. O gráfico compreende todas as solicitações cadastradas entre 01/01/2020 e 31/12/2022.')
 
 ggsave ('results/sindorc_quant_pedidos_perc_tipousu.png', width=8, height = 5)
@@ -237,7 +236,7 @@ db %>%
   labs (x=NULL,
         y='Valor Solicitado',
         fill='Status das Solicitações',
-        title='Valor e Percentual dos Pedidos por Tipo de Usuário',
+        #title='Valor e Percentual dos Pedidos por Tipo de Usuário',
         caption = 'Fonte: SINDORC. Data de extração: 07/01/2024. O gráfico compreende todas as solicitações cadastradas entre 01/01/2020 e 31/12/2022.')
 
 ggsave ('results/sindorc_valor_pedidos_tipousu.png', width=8, height = 5)
@@ -259,7 +258,7 @@ db %>%
   labs (x=NULL,
         y=NULL,
         fill='Tipo de Usuário',
-        title='Quantidade de Solicitações por Data e Tipo de Usuário',
+        #title='Quantidade de Solicitações por Data e Tipo de Usuário',
         caption = 'Fonte: SINDORC. Data de extração: 07/01/2024. O gráfico compreende todas as solicitações cadastradas entre 01/01/2020 e 31/12/2022.')
 
 ggsave ('results/sindorc_quant_data_tipousu.png', width=8, height = 5)
